@@ -28,6 +28,9 @@ namespace _5417_Sagenergy
             services.AddDbContext<DataContext>(options =>
                         options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            // Regista o Repository para permitir a injeção de dependência
+            services.AddScoped<IServiceRepository, ServiceRepository>();
+
             services.AddControllersWithViews();
         }
 

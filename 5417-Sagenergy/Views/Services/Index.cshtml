@@ -26,6 +26,11 @@
                 <td>@item.Price</td>
                 <td>@item.ServiceType</td>
                 <td>@item.IsActive</td>
+
+                <td>
+                    @* Link para consultar os detalhes do serviço *@
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                </td>
             </tr>
         }
     </tbody>
