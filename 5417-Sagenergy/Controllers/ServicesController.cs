@@ -110,5 +110,54 @@ namespace _5417_Sagenergy.Controllers
 
             return View(service);
         }
+
+
+        // Apresenta a confirmação antes de eliminar um serviço
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // Procura o serviço através do Repository
+            var service = await _serviceRepository.GetByIdAsync(id.Value);
+
+            if (service == null)
+            {
+                return NotFound();
+            }
+
+            return View(service);
+        }
+
+        // Elimina o serviço depois da confirmação
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var service = await _serviceRepository.GetByIdAsync(id);
+
+            if (service != null)
+            {
+                try
+                {
+                    await _serviceRepository.DeleteAsync(service);
+                }
+                catch (DbUpdateException)
+                {
+                    // Se existir uma relação com outro registo,
+                    // a eliminação pode ser impedida pela base de dados.
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "Não foi possível eliminar o serviço porque existem registos associados."
+                    );
+
+                    return View(service);
+                }
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
