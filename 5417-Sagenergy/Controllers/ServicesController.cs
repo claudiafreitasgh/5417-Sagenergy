@@ -63,5 +63,52 @@ namespace _5417_Sagenergy.Controllers
 
             return View(service);
         }
+
+        // Apresenta o formulário para editar um serviço existente
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // Procura o serviço através do Repository
+            var service = await _serviceRepository.GetByIdAsync(id.Value);
+
+            if (service == null)
+            {
+                return NotFound();
+            }
+
+            return View(service);
+        }
+
+        // Recebe os dados alterados e atualiza o serviço na base de dados
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Service service)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _serviceRepository.UpdateAsync(service);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    // Verifica se o serviço ainda existe antes de devolver erro
+                    if (!await _serviceRepository.ExistAsync(service.Id))
+                    {
+                        return NotFound();
+                    }
+
+                    throw;
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(service);
+        }
     }
 }
