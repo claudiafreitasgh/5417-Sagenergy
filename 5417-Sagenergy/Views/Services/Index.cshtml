@@ -1,0 +1,32 @@
+﻿@model IEnumerable<_5417_Sagenergy.Data.Entities.Service>
+
+@{
+    ViewData["Title"] = "Services";
+}
+
+<h1>Services</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Service Type</th>
+            <th>Active</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Description</td>
+                <td>@item.Price</td>
+                <td>@item.ServiceType</td>
+                <td>@item.IsActive</td>
+            </tr>
+        }
+    </tbody>
+</table>
