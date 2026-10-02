@@ -51,6 +51,8 @@ namespace _5417_Sagenergy
             services.AddScoped<IImageHelper, ImageHelper>();
             services.AddScoped<IUserHelper, UserHelper>();
 
+            services.AddTransient<SeedDb>();
+
             services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/Account/NotAuthorized";

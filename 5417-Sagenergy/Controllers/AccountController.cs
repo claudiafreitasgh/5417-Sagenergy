@@ -83,6 +83,7 @@ namespace _5417_Sagenergy.Controllers
 
                         return View(model);
                     }
+                    await _userHelper.AddUserToRoleAsync(user, "Customer");
 
                     var loginViewModel = new LoginViewModel
                     {
