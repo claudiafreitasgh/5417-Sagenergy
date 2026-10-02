@@ -1,4 +1,5 @@
 using _5417_Sagenergy.Data;
+using _5417_Sagenergy.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -39,6 +40,7 @@ namespace _5417_Sagenergy
 
             // Regista o Generic Repository para permitir a sua utilização por diferentes entidades
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IImageHelper, ImageHelper>();
 
             services.AddControllersWithViews();
         }

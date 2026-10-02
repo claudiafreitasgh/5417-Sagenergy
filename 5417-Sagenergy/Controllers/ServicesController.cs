@@ -1,9 +1,12 @@
 ﻿using _5417_Sagenergy.Data;
 using _5417_Sagenergy.Data.Entities;
+using _5417_Sagenergy.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
+
 
 namespace _5417_Sagenergy.Controllers
 {
@@ -11,10 +14,14 @@ namespace _5417_Sagenergy.Controllers
     {
         // Repository responsável pelo acesso aos dados dos serviços
         private readonly IServiceRepository _serviceRepository;
+        private readonly IImageHelper _imageHelper;
 
-        public ServicesController(IServiceRepository serviceRepository)
+        public ServicesController(
+            IServiceRepository serviceRepository,
+            IImageHelper imageHelper)
         {
             _serviceRepository = serviceRepository;
+            _imageHelper = imageHelper;
         }
 
         // Apresenta a lista de serviços ordenada pelo nome
@@ -33,11 +40,18 @@ namespace _5417_Sagenergy.Controllers
         // Post. Recebe os dados do formulário e guarda o novo serviço na base de dados
         [HttpPost]
         [ValidateAntiForgeryToken]
-        
-        public async Task<IActionResult> Create(Service service)
+
+        public async Task<IActionResult> Create(Service service, IFormFile imageFile)
         {
             if (ModelState.IsValid)
             {
+                if (imageFile != null)
+                {
+                    service.ImageUrl = await _imageHelper.UploadImageAsync(
+                        imageFile,
+                        "services");
+                }
+
                 await _serviceRepository.CreateAsync(service);
 
                 return RedirectToAction(nameof(Index));
@@ -83,20 +97,36 @@ namespace _5417_Sagenergy.Controllers
             return View(service);
         }
 
-        // Recebe os dados alterados e atualiza o serviço na base de dados
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Service service)
+        public async Task<IActionResult> Edit(Service service, IFormFile imageFile)
         {
             if (ModelState.IsValid)
             {
+                var currentService = await _serviceRepository.GetByIdAsync(service.Id);
+
+                if (currentService == null)
+                {
+                    return NotFound();
+                }
+
+                if (imageFile != null)
+                {
+                    service.ImageUrl = await _imageHelper.UploadImageAsync(
+                        imageFile,
+                        "Services");
+                }
+                else
+                {
+                    service.ImageUrl = currentService.ImageUrl;
+                }
+
                 try
                 {
                     await _serviceRepository.UpdateAsync(service);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    // Verifica se o serviço ainda existe antes de devolver erro
                     if (!await _serviceRepository.ExistAsync(service.Id))
                     {
                         return NotFound();
