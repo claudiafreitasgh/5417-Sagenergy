@@ -1,15 +1,15 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace _5417_Sagenergy.Data.Entities
 {
-    public class Service
+    public class Service : IEntity
     {
         public int Id { get; set; }
 
         [Required]
         public string Name { get; set; }
 
+        
         public string Description { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
