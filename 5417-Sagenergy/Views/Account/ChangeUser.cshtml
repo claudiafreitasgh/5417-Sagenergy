@@ -1,0 +1,43 @@
+﻿@model _5417_Sagenergy.Models.ChangeUserViewModel
+
+@{
+    ViewData["Title"] = "Change User";
+}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <h2>Change User</h2>
+        <hr />
+
+        <form asp-action="ChangeUser" method="post">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @if (!string.IsNullOrEmpty(ViewBag.UserMessage))
+            {
+                <div class="alert alert-success">
+                    @ViewBag.UserMessage
+                </div>
+            }
+
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit"
+                       value="Save"
+                       class="btn btn-primary" />
+            </div>
+
+        </form>
+    </div>
+</div>

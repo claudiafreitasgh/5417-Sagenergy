@@ -1,10 +1,12 @@
 ﻿using _5417_Sagenergy.Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
+
 
 namespace _5417_Sagenergy.Data
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityDbContext<User>
     {
         public DataContext(DbContextOptions<DataContext> options)
             : base(options)
