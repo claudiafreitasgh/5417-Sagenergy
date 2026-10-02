@@ -12,5 +12,8 @@ namespace _5417_Sagenergy.Data
         }
 
         public DbSet<Service> Services { get; set; }
+
+        // Representa a tabela de clientes na base de dados
+        public DbSet<Client> Clients { get; set; }
     }
 }

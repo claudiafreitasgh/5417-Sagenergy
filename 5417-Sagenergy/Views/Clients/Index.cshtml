@@ -1,0 +1,56 @@
+﻿@model IEnumerable<_5417_Sagenergy.Data.Entities.Client>
+
+@{
+    ViewData["Title"] = "Clients";
+}
+
+<h1>Clients</h1>
+
+@* Permite criar um novo cliente *@
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Create New
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>NIF</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Address</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Nif</td>
+                <td>@item.Email</td>
+                <td>@item.Phone</td>
+                <td>@item.Address</td>
+                <td>
+                    @* Permite consultar os detalhes do cliente *@
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">
+                        Details
+                    </a>
+
+                    @* Permite editar o cliente *@
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-primary btn-sm">
+                        Edit
+                    </a>
+
+                    @* Permite eliminar o cliente *@
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

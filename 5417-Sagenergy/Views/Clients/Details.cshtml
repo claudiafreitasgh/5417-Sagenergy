@@ -1,0 +1,60 @@
+﻿@model _5417_Sagenergy.Data.Entities.Client
+
+@{
+    ViewData["Title"] = "Client Details";
+}
+
+<h1>Client Details</h1>
+
+<hr />
+
+<div>
+    <dl class="row">
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Nif)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Nif)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Phone)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Phone)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.Address)
+        </dd>
+
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+        Edit
+    </a>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Back to List
+    </a>
+</div>
