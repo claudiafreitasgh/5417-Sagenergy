@@ -47,6 +47,23 @@ namespace _5417_Sagenergy.Data
             await _context.SaveChangesAsync();
         }
 
+        // Cria um pedido associando um cliente existente
+        public async Task CreateServiceRequestAsync(ServiceRequest serviceRequest, int clientId)
+        {
+            var client = await _context.Clients.FindAsync(clientId);
+
+            if (client == null)
+            {
+                return;
+            }
+
+            serviceRequest.Client = client;
+
+            _context.ServiceRequests.Add(serviceRequest);
+
+            await _context.SaveChangesAsync();
+        }
+
         // Remove um serviço de um pedido de assistência
         public async Task DeleteServiceFromRequestAsync(int id)
         {

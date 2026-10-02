@@ -9,6 +9,9 @@ namespace _5417_Sagenergy.Data
         // Obtém os pedidos de assistência com o cliente e os serviços associados
         Task<IQueryable<ServiceRequest>> GetServiceRequestsAsync();
 
+        // Cria um pedido associando um cliente existente
+        Task CreateServiceRequestAsync(ServiceRequest serviceRequest, int clientId);
+
         // Adiciona um serviço a um pedido de assistência
         Task AddServiceToRequestAsync(int serviceRequestId, int serviceId);
 

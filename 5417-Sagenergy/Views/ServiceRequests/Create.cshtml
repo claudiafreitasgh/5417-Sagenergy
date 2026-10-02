@@ -1,0 +1,65 @@
+﻿@model _5417_Sagenergy.Data.Entities.ServiceRequest
+
+@{
+    ViewData["Title"] = "Create Service Request";
+}
+
+<h1>Create Service Request</h1>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Client</label>
+
+                <select name="clientId" class="form-control">
+                    <option value="">-- Select a client --</option>
+
+                    @foreach (var client in ViewBag.Clients)
+                    {
+                        <option value="@client.Id">
+                            @client.Name
+                        </option>
+                    }
+                </select>
+
+                <span asp-validation-for="Client" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="RequestDate" class="control-label"></label>
+                <input asp-for="RequestDate"
+                       class="form-control"
+                       type="datetime-local" />
+                <span asp-validation-for="RequestDate"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description"
+                          class="form-control"
+                          rows="4"></textarea>
+                <span asp-validation-for="Description"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit"
+                       value="Create"
+                       class="btn btn-primary" />
+
+                <a asp-action="Index"
+                   class="btn btn-secondary">
+                    Back to List
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>

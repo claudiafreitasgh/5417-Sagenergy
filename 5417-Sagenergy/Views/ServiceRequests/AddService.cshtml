@@ -1,0 +1,58 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Add Service";
+}
+
+<h2>Add Service</h2>
+
+<h4>To Service Request</h4>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+
+        <form asp-action="AddService">
+
+            <input type="hidden"
+                   name="serviceRequestId"
+                   value="@ViewBag.ServiceRequestId" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger"></div>
+
+            <div class="form-group mb-3">
+
+                <label class="control-label">
+                    Service
+                </label>
+
+                <select name="serviceId"
+                        asp-items="@(ViewBag.Services as IEnumerable<SelectListItem>)"
+                        class="form-control">
+
+                    <option value="">-- Select a service --</option>
+
+                </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <input type="submit"
+                       value="Add"
+                       class="btn btn-primary" />
+
+                <a asp-action="Details"
+                   asp-route-id="@ViewBag.ServiceRequestId"
+                   class="btn btn-success">
+                    Back to Details
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>

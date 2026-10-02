@@ -1,0 +1,100 @@
+﻿@model _5417_Sagenergy.Data.Entities.ServiceRequest
+
+@{
+    ViewData["Title"] = "Service Request Details";
+}
+
+<h1>Service Request Details</h1>
+
+<div>
+    <hr />
+
+    <dl class="row">
+
+        <dt class="col-sm-3">
+            Client
+        </dt>
+        <dd class="col-sm-9">
+            @Model.Client.Name
+        </dd>
+
+        <dt class="col-sm-3">
+            Request Date
+        </dt>
+        <dd class="col-sm-9">
+            @Model.RequestDate.ToString("dd/MM/yyyy HH:mm")
+        </dd>
+
+        <dt class="col-sm-3">
+            Description
+        </dt>
+        <dd class="col-sm-9">
+            @Model.Description
+        </dd>
+
+        <dt class="col-sm-3">
+            Number of Services
+        </dt>
+        <dd class="col-sm-9">
+            @Model.Lines
+        </dd>
+
+        <dt class="col-sm-3">
+            Total Value
+        </dt>
+        <dd class="col-sm-9">
+            @Model.Value.ToString("C2")
+        </dd>
+
+    </dl>
+</div>
+
+@if (Model.Items != null && Model.Items.Any())
+{
+    <h3>Services</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.Service.Name</td>
+                    <td>@item.Price.ToString("C2")</td>
+                    <td>
+                        <a asp-action="DeleteService"
+                           asp-route-id="@item.Id"
+                           asp-route-serviceRequestId="@Model.Id"
+                           class="btn btn-danger btn-sm">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+<div class="mb-3">
+
+    <a asp-action="AddService"
+       asp-route-id="@Model.Id"
+       class="btn btn-primary">
+        Add Service
+    </a>
+
+    <a asp-action="Index"
+       class="btn btn-secondary">
+        Back to List
+    </a>
+
+</div>

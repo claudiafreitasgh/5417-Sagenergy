@@ -1,0 +1,52 @@
+﻿@model IEnumerable<_5417_Sagenergy.Data.Entities.ServiceRequest>
+
+@{
+    ViewData["Title"] = "Service Requests";
+}
+
+<h1>Service Requests</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Create New
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Client</th>
+            <th>Request Date</th>
+            <th>Description</th>
+            <th>Services</th>
+            <th>Value</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Client.Name</td>
+                <td>@item.RequestDate.ToString("dd/MM/yyyy")</td>
+                <td>@item.Description</td>
+                <td>@item.Lines</td>
+                <td>@item.Value.ToString("C2")</td>
+                <td>
+                    <a asp-action="Details"
+                       asp-route-id="@item.Id"
+                       class="btn btn-info btn-sm">
+                        Details
+                    </a>
+
+                    <a asp-action="Delete"
+                       asp-route-id="@item.Id"
+                       class="btn btn-danger btn-sm">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
