@@ -7,6 +7,9 @@ namespace _5417_Sagenergy.Data.Entities
         public int Id { get; set; }
 
         [Required]
+        public ServiceRequest ServiceRequest { get; set; }
+
+        [Required]
         public Service Service { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C2}")]
