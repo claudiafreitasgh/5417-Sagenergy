@@ -15,5 +15,11 @@ namespace _5417_Sagenergy.Data
 
         // Representa a tabela de clientes na base de dados
         public DbSet<Client> Clients { get; set; }
+
+        // Representa a tabela de pedidos de assistência
+        public DbSet<ServiceRequest> ServiceRequests { get; set; }
+
+        // Representa a tabela dos serviços associados a cada pedido
+        public DbSet<ServiceRequestDetail> ServiceRequestDetails { get; set; }
     }
 }

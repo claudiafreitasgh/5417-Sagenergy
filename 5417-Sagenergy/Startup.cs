@@ -34,6 +34,9 @@ namespace _5417_Sagenergy
             // Regista o Repository dos clientes para permitir a injeção de dependência
             services.AddScoped<IClientRepository, ClientRepository>();
 
+            // Regista o Repository dos pedidos de assistência
+            services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>();
+
             // Regista o Generic Repository para permitir a sua utilização por diferentes entidades
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
