@@ -1,11 +1,12 @@
-﻿using _5417_Sagenergy.Data.Entities;
+﻿using _5417_Sagenergy.Data;
+using _5417_Sagenergy.Data.Entities;
 using _5417_Sagenergy.Helpers;
 using _5417_Sagenergy.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
-using _5417_Sagenergy.Data;
 
 namespace _5417_Sagenergy.Controllers
 {
@@ -169,6 +170,51 @@ namespace _5417_Sagenergy.Controllers
             return View(model);
         }
 
+        [Authorize]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userHelper.GetUserByEmailAsync(
+                    this.User.Identity.Name);
+
+                if (user != null)
+                {
+                    var result = await _userHelper.ChangePasswordAsync(
+                        user,
+                        model.OldPassword,
+                        model.NewPassword);
+
+                    if (result.Succeeded)
+                    {
+                        ViewBag.UserMessage = "Password changed successfully!";
+                        return View();
+                    }
+
+                    ModelState.AddModelError(
+                        string.Empty,
+                        result.Errors.FirstOrDefault().Description);
+                }
+                else
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "User not found.");
+                }
+            }
+
+            return View(model);
+        }
+
+
+
         public async Task<IActionResult> Logout()
         {
             await _userHelper.LogoutAsync();
@@ -180,5 +226,7 @@ namespace _5417_Sagenergy.Controllers
         {
             return View();
         }
+
+
     }
 }
