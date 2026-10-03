@@ -1,5 +1,7 @@
 ﻿using _5417_Sagenergy.Data;
 using _5417_Sagenergy.Data.Entities;
+using _5417_Sagenergy.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -12,48 +14,94 @@ namespace _5417_Sagenergy.Controllers
         private readonly IServiceRequestRepository _serviceRequestRepository;
         private readonly IClientRepository _clientRepository;
         private readonly IServiceRepository _serviceRepository;
+        private readonly IUserHelper _userHelper;
 
         public ServiceRequestsController(
             IServiceRequestRepository serviceRequestRepository,
             IClientRepository clientRepository,
-            IServiceRepository serviceRepository)
+            IServiceRepository serviceRepository,
+            IUserHelper userHelper)
         {
             _serviceRequestRepository = serviceRequestRepository;
             _clientRepository = clientRepository;
             _serviceRepository = serviceRepository;
+            _userHelper = userHelper;
         }
 
-
-        // Apresenta a lista dos pedidos de assistência
+        // Admin sees all requests. Customer sees only their own requests.
         public async Task<IActionResult> Index()
         {
-            var model = await _serviceRequestRepository.GetServiceRequestsAsync();
+            var requests = await _serviceRequestRepository.GetServiceRequestsAsync();
+
+            if (User.IsInRole("Admin"))
+            {
+                return View(requests);
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var model = requests
+                .Where(request => request.Client.UserId == user.Id);
 
             return View(model);
         }
 
-        // Apresenta o formulário para criar um novo pedido
-        public IActionResult Create()
+        // Admin can choose the client. Customer uses their own client automatically.
+        public async Task<IActionResult> Create()
         {
-            ViewBag.Clients = _clientRepository.GetAll()
-                .OrderBy(client => client.Name);
+            if (User.IsInRole("Admin"))
+            {
+                ViewBag.Clients = _clientRepository.GetAll()
+                    .OrderBy(client => client.Name);
+            }
 
             return View();
         }
 
-        // Recebe os dados do formulário e cria o pedido
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(ServiceRequest serviceRequest, int clientId)
+        public async Task<IActionResult> Create(
+            ServiceRequest serviceRequest,
+            int? clientId)
         {
-            var client = await _clientRepository.GetByIdAsync(clientId);
-
-            if (client == null)
+            if (User.IsInRole("Admin"))
             {
-                ModelState.AddModelError("Client", "Selecione um cliente válido.");
+                if (clientId == null)
+                {
+                    ModelState.AddModelError(
+                        "Client",
+                        "Please select a client.");
+                }
+                else
+                {
+                    ModelState.Remove(nameof(ServiceRequest.Client));
+                }
             }
             else
             {
+                var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                var client = _clientRepository
+                    .GetAll()
+                    .FirstOrDefault(model => model.UserId == user.Id);
+
+                if (client == null)
+                {
+                    return NotFound();
+                }
+
+                clientId = client.Id;
+
                 ModelState.Remove(nameof(ServiceRequest.Client));
             }
 
@@ -61,18 +109,20 @@ namespace _5417_Sagenergy.Controllers
             {
                 await _serviceRequestRepository.CreateServiceRequestAsync(
                     serviceRequest,
-                    clientId);
+                    clientId.Value);
 
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewBag.Clients = _clientRepository.GetAll()
-                .OrderBy(c => c.Name);
+            if (User.IsInRole("Admin"))
+            {
+                ViewBag.Clients = _clientRepository.GetAll()
+                    .OrderBy(client => client.Name);
+            }
 
             return View(serviceRequest);
         }
 
-        // Apresenta os detalhes de um pedido específico
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -90,23 +140,73 @@ namespace _5417_Sagenergy.Controllers
                 return NotFound();
             }
 
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+                if (user == null || serviceRequest.Client.UserId != user.Id)
+                {
+                    return Forbid();
+                }
+            }
+
             return View(serviceRequest);
         }
 
-        // Apresenta o formulário para adicionar um serviço ao pedido
-        public IActionResult AddService(int id)
+        public async Task<IActionResult> AddService(int id)
         {
+            var requests = await _serviceRequestRepository.GetServiceRequestsAsync();
+
+            var serviceRequest = requests
+                .FirstOrDefault(request => request.Id == id);
+
+            if (serviceRequest == null)
+            {
+                return NotFound();
+            }
+
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+                if (user == null || serviceRequest.Client.UserId != user.Id)
+                {
+                    return Forbid();
+                }
+            }
+
             ViewBag.ServiceRequestId = id;
             ViewBag.Services = _serviceRepository.GetComboServices();
 
             return View();
         }
 
-        // Adiciona o serviço selecionado ao pedido
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddService(int serviceRequestId, int serviceId)
+        public async Task<IActionResult> AddService(
+            int serviceRequestId,
+            int serviceId)
         {
+            var requests = await _serviceRequestRepository.GetServiceRequestsAsync();
+
+            var serviceRequest = requests
+                .FirstOrDefault(request => request.Id == serviceRequestId);
+
+            if (serviceRequest == null)
+            {
+                return NotFound();
+            }
+
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+                if (user == null || serviceRequest.Client.UserId != user.Id)
+                {
+                    return Forbid();
+                }
+            }
+
             await _serviceRequestRepository.AddServiceToRequestAsync(
                 serviceRequestId,
                 serviceId);
@@ -114,19 +214,43 @@ namespace _5417_Sagenergy.Controllers
             return RedirectToAction(nameof(Details), new { id = serviceRequestId });
         }
 
-        public async Task<IActionResult> DeleteService(int? id, int serviceRequestId)
+        public async Task<IActionResult> DeleteService(
+            int? id,
+            int serviceRequestId)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
+            var requests = await _serviceRequestRepository.GetServiceRequestsAsync();
+
+            var serviceRequest = requests
+                .FirstOrDefault(request => request.Id == serviceRequestId);
+
+            if (serviceRequest == null)
+            {
+                return NotFound();
+            }
+
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+                if (user == null || serviceRequest.Client.UserId != user.Id)
+                {
+                    return Forbid();
+                }
+            }
+
             await _serviceRequestRepository.DeleteServiceFromRequestAsync(id.Value);
 
-            return RedirectToAction(nameof(Details), new { id = serviceRequestId });
+            return RedirectToAction(
+                nameof(Details),
+                new { id = serviceRequestId });
         }
 
-        // Apresenta o formulário para eliminar um pedido
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -147,9 +271,9 @@ namespace _5417_Sagenergy.Controllers
             return View(serviceRequest);
         }
 
-        // Elimina o pedido depois da confirmação
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var serviceRequest = await _serviceRequestRepository.GetByIdAsync(id);
