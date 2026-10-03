@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace _5417_Sagenergy.Controllers
@@ -32,6 +33,7 @@ namespace _5417_Sagenergy.Controllers
 
 
         //GET create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -39,6 +41,7 @@ namespace _5417_Sagenergy.Controllers
 
         // Post. Recebe os dados do formulário e guarda o novo serviço na base de dados
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
 
         public async Task<IActionResult> Create(Service service, IFormFile imageFile)
@@ -79,6 +82,7 @@ namespace _5417_Sagenergy.Controllers
         }
 
         // Apresenta o formulário para editar um serviço existente
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -98,6 +102,7 @@ namespace _5417_Sagenergy.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Service service, IFormFile imageFile)
         {
@@ -143,6 +148,7 @@ namespace _5417_Sagenergy.Controllers
 
 
         // Apresenta a confirmação antes de eliminar um serviço
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -163,6 +169,7 @@ namespace _5417_Sagenergy.Controllers
 
         // Elimina o serviço depois da confirmação
         [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {

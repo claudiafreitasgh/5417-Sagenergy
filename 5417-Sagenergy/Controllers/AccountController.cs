@@ -159,5 +159,10 @@ namespace _5417_Sagenergy.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+        public IActionResult NotAuthorized()
+        {
+            return View();
+        }
     }
 }
