@@ -1,5 +1,7 @@
 ﻿using _5417_Sagenergy.Data;
 using _5417_Sagenergy.Data.Entities;
+using _5417_Sagenergy.Helpers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -9,29 +11,53 @@ namespace _5417_Sagenergy.Controllers
 {
     public class ClientsController : Controller
     {
-        // Repository responsável pelo acesso aos dados dos clientes
         private readonly IClientRepository _clientRepository;
+        private readonly IUserHelper _userHelper;
 
-        public ClientsController(IClientRepository clientRepository)
+        public ClientsController(
+            IClientRepository clientRepository,
+            IUserHelper userHelper)
         {
             _clientRepository = clientRepository;
+            _userHelper = userHelper;
         }
 
-        // Apresenta a lista de clientes ordenada pelo nome
-        public IActionResult Index()
+        // Admin sees all clients. Customer sees only their own client.
+        public async Task<IActionResult> Index()
         {
-            return View(_clientRepository.GetAll().OrderBy(model => model.Name));
+            if (User.IsInRole("Admin"))
+            {
+                return View(_clientRepository.GetAll().OrderBy(model => model.Name));
+            }
+
+            var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var client = _clientRepository
+                .GetAll()
+                .FirstOrDefault(model => model.UserId == user.Id);
+
+            if (client == null)
+            {
+                return NotFound();
+            }
+
+            return View(new[] { client }.AsQueryable());
         }
 
-        // Apresenta o formulário para criar um novo cliente
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // Recebe os dados do formulário e guarda o novo cliente
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(Client client)
         {
             if (ModelState.IsValid)
@@ -43,7 +69,6 @@ namespace _5417_Sagenergy.Controllers
             return View(client);
         }
 
-        // Apresenta os detalhes de um cliente específico
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -58,10 +83,19 @@ namespace _5417_Sagenergy.Controllers
                 return NotFound();
             }
 
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+                if (user == null || client.UserId != user.Id)
+                {
+                    return Forbid();
+                }
+            }
+
             return View(client);
         }
 
-        // Apresenta o formulário para editar um cliente existente
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -76,23 +110,51 @@ namespace _5417_Sagenergy.Controllers
                 return NotFound();
             }
 
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+                if (user == null || client.UserId != user.Id)
+                {
+                    return Forbid();
+                }
+            }
+
             return View(client);
         }
 
-        // Recebe os dados alterados e atualiza o cliente
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Client client)
         {
             if (ModelState.IsValid)
             {
+                if (!User.IsInRole("Admin"))
+                {
+                    var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+                    if (user == null)
+                    {
+                        return Forbid();
+                    }
+
+                    var existingClient = await _clientRepository.GetByIdAsync(client.Id);
+
+                    if (existingClient == null || existingClient.UserId != user.Id)
+                    {
+                        return Forbid();
+                    }
+
+                    
+                    client.UserId = existingClient.UserId;
+                }
+
                 try
                 {
                     await _clientRepository.UpdateAsync(client);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    // Verifica se o cliente ainda existe antes de devolver erro
                     if (!await _clientRepository.ExistAsync(client.Id))
                     {
                         return NotFound();
@@ -107,7 +169,9 @@ namespace _5417_Sagenergy.Controllers
             return View(client);
         }
 
-        // Apresenta a confirmação antes de eliminar um cliente
+
+
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -125,9 +189,9 @@ namespace _5417_Sagenergy.Controllers
             return View(client);
         }
 
-        // Elimina o cliente depois da confirmação
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var client = await _clientRepository.GetByIdAsync(id);
@@ -140,7 +204,6 @@ namespace _5417_Sagenergy.Controllers
                 }
                 catch (DbUpdateException)
                 {
-                    // Impede a eliminação quando existem registos associados
                     ModelState.AddModelError(
                         string.Empty,
                         "Não foi possível eliminar o cliente porque existem registos associados."

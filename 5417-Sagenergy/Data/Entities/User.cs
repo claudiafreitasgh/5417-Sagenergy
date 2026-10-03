@@ -11,5 +11,7 @@ namespace _5417_Sagenergy.Data.Entities
 
         [Display(Name = "Full Name")]
         public string FullName => $"{FirstName} {LastName}";
+
+        public Client Client { get; set; }
     }
 }

@@ -5,17 +5,21 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
-
+using _5417_Sagenergy.Data;
 
 namespace _5417_Sagenergy.Controllers
 {
     public class AccountController : Controller
     {
         private readonly IUserHelper _userHelper;
+        private readonly DataContext _context;
 
-        public AccountController(IUserHelper userHelper)
+        public AccountController(
+                IUserHelper userHelper,
+                DataContext context)
         {
             _userHelper = userHelper;
+            _context = context;
         }
 
         public IActionResult Login()
@@ -56,6 +60,7 @@ namespace _5417_Sagenergy.Controllers
             return View();
         }
 
+
         [HttpPost]
         public async Task<IActionResult> Register(RegisterNewUserViewModel model)
         {
@@ -67,8 +72,8 @@ namespace _5417_Sagenergy.Controllers
                 {
                     user = new User
                     {
-                        FirstName = model.Username,
-                        LastName = model.Username,
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
                         Email = model.Username,
                         UserName = model.Username,
                     };
@@ -83,7 +88,18 @@ namespace _5417_Sagenergy.Controllers
 
                         return View(model);
                     }
+
                     await _userHelper.AddUserToRoleAsync(user, "Customer");
+
+                    var client = new Client
+                    {
+                        Name = $"{model.FirstName} {model.LastName}",
+                        Email = model.Username,
+                        UserId = user.Id
+                    };
+
+                    _context.Clients.Add(client);
+                    await _context.SaveChangesAsync();
 
                     var loginViewModel = new LoginViewModel
                     {

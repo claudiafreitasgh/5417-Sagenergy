@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-
-
 namespace _5417_Sagenergy.Data
 {
     public class DataContext : IdentityDbContext<User>
@@ -23,5 +21,16 @@ namespace _5417_Sagenergy.Data
 
         // Representa a tabela dos serviços associados a cada pedido
         public DbSet<ServiceRequestDetail> ServiceRequestDetails { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>()
+                .HasOne(user => user.Client)
+                .WithOne(client => client.User)
+                .HasForeignKey<Client>(client => client.UserId)
+                .IsRequired(false);
+        }
     }
 }
