@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace _5417_Sagenergy.Controllers
 {
+    [Authorize]
     public class ServiceRequestsController : Controller
     {
         private readonly IServiceRequestRepository _serviceRequestRepository;
