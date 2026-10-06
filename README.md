@@ -68,7 +68,7 @@ Como Executar
 1. Clonar o repositório do GitHub.
 2. Abrir a solução no Visual Studio.
 3. Garantir que o SQL Server está instalado e em execução.
-4. Configurar a ligação à base de dados no ficheiro `appsettings.json`.
+4. Configurar a ligação à base de dados no ficheiro appsettings.json.
 5. Abrir a Package Manager Console no Visual Studio.
 6. Executar:
 
