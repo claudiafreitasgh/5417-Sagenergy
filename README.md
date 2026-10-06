@@ -55,13 +55,13 @@ Estrutura do Projeto
 
 A aplicação segue a arquitetura MVC e utiliza o Repository Pattern.
 
-- `Controllers` – controladores da aplicação
-- `Data/Entities` – entidades da aplicação
-- `Data` – DbContext e repositories
-- `Helpers` – classes auxiliares da aplicação
-- `Models` – ViewModels
-- `Views` – vistas MVC
-- `Migrations` – migrations do Entity Framework Core
+- Controllers – controladores da aplicação
+- Data/Entities – entidades da aplicação
+- Data – DbContext e repositories
+- Helpers – classes auxiliares da aplicação
+- Models – ViewModels
+- Views – vistas MVC
+- Migrations – migrations do Entity Framework Core
 
 Como Executar
 
@@ -72,7 +72,7 @@ Como Executar
 5. Abrir a Package Manager Console no Visual Studio.
 6. Executar:
 
-```powershell
+No powershell
 Update-Database
 
 7. Compilar e executar a aplicação.
