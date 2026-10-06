@@ -12,7 +12,9 @@ namespace _5417_Sagenergy.Data.Entities
         [Required]
         public Service Service { get; set; }
 
+
         [DisplayFormat(DataFormatString = "{0:C2}")]
+        [Range(0, double.MaxValue)]
         public decimal Price { get; set; }
 
         public decimal Value => Price;

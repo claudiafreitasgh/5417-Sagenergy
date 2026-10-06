@@ -214,6 +214,90 @@ namespace _5417_Sagenergy.Controllers
             return RedirectToAction(nameof(Details), new { id = serviceRequestId });
         }
 
+
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var requests = await _serviceRequestRepository.GetServiceRequestsAsync();
+
+            var serviceRequest = requests
+                .FirstOrDefault(request => request.Id == id.Value);
+
+            if (serviceRequest == null)
+            {
+                return NotFound();
+            }
+
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userHelper.GetUserByEmailAsync(User.Identity.Name);
+
+                if (user == null || serviceRequest.Client.UserId != user.Id)
+                {
+                    return Forbid();
+                }
+            }
+
+            return View(serviceRequest);
+        }
+
+
+        // POST Edit
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+                int id,
+                ServiceRequest serviceRequest)
+        {
+            if (id != serviceRequest.Id)
+            {
+                return NotFound();
+            }
+
+            var requests = await _serviceRequestRepository
+                .GetServiceRequestsAsync();
+
+            var existingRequest = requests
+                .FirstOrDefault(request => request.Id == id);
+
+            if (existingRequest == null)
+            {
+                return NotFound();
+            }
+
+            if (!User.IsInRole("Admin"))
+            {
+                var user = await _userHelper
+                    .GetUserByEmailAsync(User.Identity.Name);
+
+                if (user == null ||
+                    existingRequest.Client.UserId != user.Id)
+                {
+                    return Forbid();
+                }
+            }
+
+            ModelState.Remove(nameof(ServiceRequest.Client));
+
+            if (ModelState.IsValid)
+            {
+                existingRequest.RequestDate = serviceRequest.RequestDate;
+                existingRequest.Description = serviceRequest.Description;
+
+                await _serviceRequestRepository.UpdateAsync(existingRequest);
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            serviceRequest.Client = existingRequest.Client;
+
+            return View(serviceRequest);
+        }
+
         public async Task<IActionResult> DeleteService(
             int? id,
             int serviceRequestId)

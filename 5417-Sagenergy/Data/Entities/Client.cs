@@ -13,6 +13,8 @@ namespace _5417_Sagenergy.Data.Entities
         [Display(Name = "NIF")]
         public string Nif { get; set; }
 
+        [Display(Name = "Email")]
+        [EmailAddress]
         public string Email { get; set; }
 
         public string Phone { get; set; }

@@ -36,7 +36,8 @@ namespace _5417_Sagenergy
                 cfg.Password.RequiredLength = 6;
 
             })
-            .AddEntityFrameworkStores<DataContext>();
+            .AddEntityFrameworkStores<DataContext>()
+            .AddDefaultTokenProviders();
 
             services.AddDbContext<DataContext>(options =>
                 options.UseSqlServer(

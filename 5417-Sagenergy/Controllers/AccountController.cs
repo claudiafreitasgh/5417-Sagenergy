@@ -125,6 +125,98 @@ namespace _5417_Sagenergy.Controllers
             return View(model);
         }
 
+
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userHelper.GetUserByEmailAsync(model.Email);
+
+                if (user != null)
+                {
+                    var token = await _userHelper.GeneratePasswordResetTokenAsync(user);
+
+                    return RedirectToAction(
+                        nameof(ResetPassword),
+                        new
+                        {
+                            email = model.Email,
+                            token = token
+                        });
+                }
+
+                ModelState.AddModelError(
+                    string.Empty,
+                    "No user was found with this email.");
+            }
+
+            return View(model);
+        }
+
+        public IActionResult ResetPassword(
+            string email,
+            string token)
+        {
+            if (string.IsNullOrEmpty(email) ||
+                string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction(nameof(ForgotPassword));
+            }
+
+            var model = new ResetPasswordViewModel
+            {
+                Email = email,
+                Token = token
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(
+            ResetPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userHelper.GetUserByEmailAsync(model.Email);
+
+                if (user != null)
+                {
+                    var result = await _userHelper.ResetPasswordAsync(
+                        user,
+                        model.Token,
+                        model.Password);
+
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction(nameof(Login));
+                    }
+
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(
+                            string.Empty,
+                            error.Description);
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "User not found.");
+                }
+            }
+
+            return View(model);
+        }
+
+
         public async Task<IActionResult> ChangeUser()
         {
             var user = await _userHelper.GetUserByEmailAsync(this.User.Identity.Name);

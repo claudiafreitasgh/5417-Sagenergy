@@ -13,6 +13,7 @@ namespace _5417_Sagenergy.Data.Entities
         public string Description { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
+        [Range(0, double.MaxValue)]
         public decimal Price { get; set; }
 
         [Display(Name = "Service Type")]
